@@ -25,7 +25,10 @@ def main():
         page.click("#diagnoseBtn")
 
         try:
-            page.wait_for_selector("#resultCard:not(.hidden)", timeout=8000)
+            # Generous timeout: up to 2 sequential Gemini calls (diagnosis +
+            # orchestration), each retrying 3x with backoff before falling
+            # back -- worst case (quota exhausted) is ~20s.
+            page.wait_for_selector("#resultCard:not(.hidden)", timeout=30000)
         except Exception as e:
             print(f"FAILED on main app: {e}")
             print(console_errors)

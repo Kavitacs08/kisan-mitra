@@ -18,6 +18,24 @@ disease guides, satisfying the hackathon's mandatory "must use Google Gemini/Gem
 requirement. A local keyword/RAG heuristic exists only as a fallback if the live Gemini
 call fails after retries — see `frontend/js/diagnosis.js`.
 
+**Agentic orchestration note (2026-10-18):** which downstream tool to invoke (dealer
+lookup, sell-price lookup, insurance-claim check, group-buy check) is decided by Gemini
+itself via real function-calling (`tools`/`functionDeclarations`), not hardcoded
+`if/else` branching — see `frontend/js/orchestrator.js`. Gemini is trusted only to pick
+*which* tools fire, never the argument values (verified live: it will fill a
+`treatment` parameter with the disease name rather than the actual product slug, since
+it has no access to that mapping) — the real arguments still come from the same known
+mappings `advisory.js` always used. Falls back to the exact same decision rules as
+before if the call fails. The UI shows "tool selection via Gemini" vs. "tool selection:
+fallback" next to the diagnosis source label.
+
+**Gemini free-tier quota note:** the free tier allows **20 requests/day per project**
+for `gemini-3.8-flash`. Each diagnosis now makes up to 2 Gemini calls (diagnosis +
+orchestration), so the deployed key supports roughly 10 full diagnoses/day before
+falling back for the rest of the day. This is a known, accepted limit of the free
+tier, not a bug — the fallback paths exist specifically so the app keeps working
+(with reduced "via Gemini" labeling) once quota is exhausted.
+
 ## Setup (first time after cloning)
 
 The Gemini API key is not committed to this repo. Before running the app locally or
@@ -69,8 +87,10 @@ see "Legacy backend" below): `python scripts/generate_synthetic_data.py`
   `frontend/data/diagnosis_history.csv` (`frontend/js/outbreak.js`)
 - **Plot-level memory** — a real recurring-disease check over the same plot's diagnosis
   history (`frontend/js/plot-memory.js`)
-- **Orchestration** — real branching logic: diseased → dealer lookup; healthy + near
-  harvest → sell-price lookup (`frontend/js/advisory.js`)
+- **Orchestration** — Gemini decides which downstream tools to invoke via real
+  function-calling, given the diagnosis + outbreak signal + near-harvest flag; falls
+  back to the equivalent deterministic rules if the call fails
+  (`frontend/js/orchestrator.js`, wired in by `frontend/js/advisory.js`)
 - **Translation** — pre-written Kannada templates per known disease (not a generic
   translator — see the honesty note in `frontend/js/translation.js`)
 - **Voice advisory** — feature-detects a real `kn-IN` voice via the browser's
@@ -148,6 +168,8 @@ to produce identical output (see migration notes). Mapping:
 | `backend/dashboard.py` | run once at build time via `scripts/export_dashboard_json.py`, **not** ported to JS (see privacy note below) |
 | `backend/advisory.py` | `frontend/js/advisory.js` |
 | `backend/main.py` (FastAPI routes) | `frontend/js/main.js` / `frontend/js/dashboard-main.js` (UI wiring, no HTTP server) |
+| *(no Python equivalent)* | `frontend/js/orchestrator.js` — new, added 2026-10-18: Gemini function-calling tool-selection, not part of the original Python backend |
+| *(no Python equivalent)* | `frontend/js/gemini-client.js` — new, added 2026-10-18: shared Gemini call + retry helper, extracted out of `diagnosis.js` so `orchestrator.js` doesn't duplicate it |
 
 **Privacy note on the dashboard**: `backend/dashboard.py` joins `farmers.csv` (names,
 phone numbers) to compute village-level aggregates. Shipping that raw file to a public

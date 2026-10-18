@@ -30,7 +30,11 @@ def main():
         page.click("#diagnoseBtn")
 
         try:
-            page.wait_for_selector("#resultCard:not(.hidden)", timeout=8000)
+            # Generous timeout: the pipeline now makes up to 2 sequential
+            # Gemini calls (diagnosis + orchestration), each retrying 3x
+            # with backoff before falling back -- worst case (quota
+            # exhausted) is ~20s, not the ~8s a single-call pipeline needed.
+            page.wait_for_selector("#resultCard:not(.hidden)", timeout=30000)
         except Exception as e:
             page.screenshot(path=os.path.join(OUT_DIR, "02_error_state.png"))
             print(f"FAILED waiting for result card: {e}")

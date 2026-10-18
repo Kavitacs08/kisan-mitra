@@ -11,7 +11,7 @@
  * degrades gracefully instead of breaking the demo, but the primary path
  * is always the real model.
  */
-import { GEMINI_API_URL, GEMINI_API_KEY } from "./config.js";
+import { callGeminiRawWithRetry } from "./gemini-client.js";
 import { retrieveDiseaseContext } from "./rag.js";
 
 const KNOWN_DISEASES = [
@@ -57,7 +57,7 @@ function buildPrompt(symptomDescription, contextBlock) {
   );
 }
 
-async function callGemini(prompt, imageDataUrl) {
+function buildDiagnosisRequestBody(prompt, imageDataUrl) {
   const parts = [{ text: prompt }];
   if (imageDataUrl) {
     const [, mimeType, base64] = imageDataUrl.match(/^data:([^;]+);base64,(.+)$/) || [];
@@ -65,42 +65,20 @@ async function callGemini(prompt, imageDataUrl) {
       parts.push({ inline_data: { mime_type: mimeType, data: base64 } });
     }
   }
+  return {
+    contents: [{ parts }],
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: DIAGNOSIS_SCHEMA,
+    },
+  };
+}
 
-  const res = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts }],
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: DIAGNOSIS_SCHEMA,
-      },
-    }),
-  });
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(`Gemini API ${res.status}: ${body.slice(0, 200)}`);
-  }
-
-  const data = await res.json();
+async function callGeminiDiagnosis(prompt, imageDataUrl) {
+  const data = await callGeminiRawWithRetry(buildDiagnosisRequestBody(prompt, imageDataUrl));
   const text = data?.candidates?.[0]?.content?.parts?.find((p) => p.text)?.text;
   if (!text) throw new Error("Gemini returned no text content");
   return JSON.parse(text);
-}
-
-async function callGeminiWithRetry(prompt, imageDataUrl, maxAttempts = 3) {
-  let lastErr;
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      return await callGemini(prompt, imageDataUrl);
-    } catch (err) {
-      lastErr = err;
-      console.warn(`Gemini attempt ${attempt}/${maxAttempts} failed:`, err.message);
-      if (attempt < maxAttempts) await new Promise((r) => setTimeout(r, 1500 * attempt));
-    }
-  }
-  throw lastErr;
 }
 
 /**
@@ -114,7 +92,7 @@ export async function diagnoseCropPhoto(symptomDescription, imageDataUrl = null)
   const prompt = buildPrompt(symptomDescription, contextBlock);
 
   try {
-    const result = await callGeminiWithRetry(prompt, imageDataUrl);
+    const result = await callGeminiDiagnosis(prompt, imageDataUrl);
     return {
       disease: result.disease,
       confidence: Math.max(0, Math.min(1, result.confidence)),

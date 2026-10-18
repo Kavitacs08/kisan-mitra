@@ -109,6 +109,10 @@ function renderResult(data) {
     : " (via Gemini)";
   document.getElementById("citedSource").textContent =
     (d.cited_source ? `Source: ${d.cited_source}` : "") + sourceNote;
+  const orchestrationNote = data.orchestration_source === "fallback"
+    ? " · tool selection: fallback"
+    : " · tool selection via Gemini";
+  document.getElementById("citedSource").textContent += orchestrationNote;
   document.getElementById("advisoryEn").textContent = data.advisory_text_en;
   document.getElementById("advisoryLocal").textContent = data.advisory_text_local;
   document.getElementById("audioNote").textContent = data.audio_available
