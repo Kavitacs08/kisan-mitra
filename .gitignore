@@ -23,6 +23,10 @@ docs/tomato_leaf_disease_images/
 
 # Regenerable video build intermediates (titles/beat cards rendered to PNG,
 # per-segment mp4s, ffmpeg concat list) -- rerun scripts/build_demo_video.py
-# to recreate. Raw Playwright recordings (docs/video/raw/) are kept, since
-# re-recording costs live Gemini quota.
+# or scripts/build_synced_demo.py to recreate. Raw Playwright recordings
+# (docs/video/raw/) are kept, since re-recording costs live Gemini quota.
+# narration_takes/ (per-segment synthesized audio) is also regenerable via
+# scripts/synthesize_narration.py, but kept small enough to commit for
+# convenience -- only the big rendered_* dirs are ignored.
 docs/video/rendered/
+docs/video/rendered_synced/
