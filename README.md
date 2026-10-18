@@ -182,9 +182,46 @@ stripped — neither of those two features ever needs it.
 
 The never-implemented real-service paths (`# REAL:` stubs for Gemini multimodal, Vertex
 AI Search, Cloud Translation, Cloud Text-to-Speech) and the Cloud Run deploy scripts
-(`deploy/Dockerfile`, `deploy/deploy_cloud_run.sh`) remain in the repo as reference for
-if/when a GCP project with billing becomes available and a true multimodal Gemini
-upgrade is wanted.
+(`deploy/Dockerfile`, `deploy/deploy_cloud_run.sh`) remain in the repo as reference —
+see the next section for exactly what each one would become.
+
+## Upgrade path if GCP billing becomes available
+
+The current build is a deliberate, documented fallback for a zero-billing constraint,
+not a dead end. Every client-side substitute below was built behind a single, isolated
+call site specifically so swapping it for the real managed service later doesn't ripple
+through the rest of the app — the caller never needed to know how the substitute was
+implemented internally.
+
+| Currently (free, client-side) | Would become (needs billing) | Why it's a clean swap |
+|---|---|---|
+| Hand-rolled TF-IDF/cosine similarity in `rag.js` | **Vertex AI Search** — managed RAG, better retrieval quality, scales past 18 documents | `rag.js` exposes one function, `retrieveDiseaseContext()` — `diagnosis.js` doesn't care how it's implemented |
+| Browser's `SpeechSynthesis` for Kannada voice | **Cloud Text-to-Speech** — reliable Kannada voice quality instead of "works if the browser happens to have one" | Isolated behind `tts.js`'s `speakAdvisory()` |
+| 10 hardcoded Kannada template strings | **Cloud Translation API** — real translation for any disease/language, not just the 9 pre-written cases | One call site: `translation.js`'s `translateAdvisory()` |
+| Static JSON/CSV files for dealers, prices, diagnosis history | **Firestore** — a real, live, writable database instead of a frozen snapshot | `market.js`/`outbreak.js`/`plot-memory.js` already load data through small loader functions, not scattered `fetch()` calls |
+| Pre-built, deploy-time dashboard snapshot | **Firestore + a scheduled Cloud Function** — a genuinely live dashboard, not a snapshot from whenever `export_dashboard_json.py` last ran | This is the build's biggest real scalability limitation today |
+| Gemini called directly from browser JS, API key visible in client code | **Gemini via Vertex AI behind a Cloud Run/Cloud Functions proxy** — key never leaves the server, proper IAM instead of a public, unrestricted key | Also removes the free tier's 20-requests/day ceiling |
+
+**Priority if credits became available**, highest first:
+
+1. **Gemini behind a server proxy** — closes a real security gap (the key is currently
+   public and unrestricted) and removes the 20-req/day quota ceiling that currently
+   caps the app at ~10 full diagnoses/day.
+2. **Firestore for dealers/prices/history** — turns the district dashboard from a stale
+   snapshot into something genuinely live, directly answering the "how does this scale"
+   question a technical judge would reasonably ask.
+3. **Vertex AI Search** — a quality upgrade, not a fix; the current TF-IDF approach
+   already works correctly at this document count.
+4. **Cloud Translation + Cloud Text-to-Speech** — useful for extending past the 9
+   pre-written diseases and getting consistent voice quality, but the current
+   fallbacks are honestly labeled, never silently wrong, so this is lowest urgency.
+
+**Honest caveat**: this swap is clean for the application logic, but it reintroduces
+exactly what this architecture was built to avoid — billing, a backend, and GCP
+Console access. If the same account-access issue that originally blocked
+`kisan-mitra-2026-511917` resurfaces, this upgrade path hits it again. "This can be
+upgraded" is true architecturally; it depends on actually having working, accessible
+GCP billing, which is the thing that was unavailable before, not a code limitation.
 
 ## Project layout
 
