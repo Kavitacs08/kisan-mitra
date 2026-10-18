@@ -95,25 +95,37 @@ see "Legacy backend" below): `python scripts/generate_synthetic_data.py`
 
 ## Going live
 
-1. Complete the "Setup" step above (`.env` → `generate_config.py`) if you haven't.
-2. `npm install -g firebase-tools` (if not already installed), then `firebase login`
+This repo is on GitHub: https://github.com/Kavitacs08/kisan-mitra — deploys are driven
+from a local clone's committed state, not ad hoc edits.
+
+**First time on a new machine:**
+1. `git clone https://github.com/Kavitacs08/kisan-mitra.git && cd kisan-mitra`
+2. Complete the "Setup" step above (`.env` → `generate_config.py`) — every machine
+   deploying this repo needs its own `.env`; it is never committed.
+3. `npm install -g firebase-tools` (if not already installed), then `firebase login`
    (interactive; opens a browser, or gives a manual code flow if that fails).
-3. Create a brand-new project directly at https://console.firebase.google.com (do
-   **not** import an existing GCP project with billing already linked — that inherits
-   the paid Blaze plan; a fresh project defaults to the free Spark plan, no card needed).
-4. `firebase use <project-id>` (run from `kisan_mitra_app/`, the project root —
-   `firebase.json` lives there, not in `deploy/`, because Firebase Hosting's `public`
-   path can't point outside the directory containing `firebase.json`)
-5. If the underlying data has changed, refresh the dashboard snapshot first:
-   `python scripts/export_dashboard_json.py`
-6. `firebase deploy --only hosting --project <project-id>`
+4. The project is already linked via the committed `.firebaserc`
+   (`kisan-mitra-2026-56c5d`) — `firebase use` with no args should print it.
+   (If you're setting up a *different* Firebase project, create a brand-new one
+   directly at https://console.firebase.google.com — do **not** import an existing GCP
+   project with billing already linked, that inherits the paid Blaze plan — then
+   `firebase use <your-project-id>` to update `.firebaserc`.)
+
+**Every deploy after that:**
+```bash
+bash deploy/deploy_from_git.sh
+```
+This pulls the latest commit, regenerates `frontend/js/config.js` from your local
+`.env`, refreshes the district-dashboard snapshot, and deploys. Or run the steps by
+hand: `git pull --ff-only`, `python scripts/generate_config.py`,
+`python scripts/export_dashboard_json.py`, `firebase deploy --only hosting`.
 
 That's it — no Cloud Run, no Firestore, no Vertex AI, no billing account, no credit
 card. This project is live at **https://kisan-mitra-2026-56c5d.web.app**.
 
 `deploy/firebase.json` and `deploy/deploy_firebase.sh` are an earlier draft kept for
-reference; the config that's actually used lives at the project root (`firebase.json`),
-copied from `deploy/firebase.json` with `"public": "frontend"` instead of `"../frontend"`.
+reference; the config actually used lives at the project root (`firebase.json` +
+`.firebaserc`).
 
 ## Legacy backend (not deployed, kept for reference)
 
@@ -158,6 +170,7 @@ upgrade is wanted.
 .env                   NOT committed — your real Gemini API key (copy from .env.example)
 .env.example           committed template for .env
 firebase.json          Firebase Hosting config actually used for deploy (project root)
+.firebaserc            committed — links this repo to kisan-mitra-2026-56c5d
 frontend/              THE DEPLOYED APP (static site)
   index.html            farmer-facing single-page app
   dashboard.html         extension-officer dashboard
