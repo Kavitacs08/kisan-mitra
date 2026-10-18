@@ -1,0 +1,26 @@
+Disease: Tomato Leaf Curl Virus (ToLCV)
+Crop: Tomato
+Region: Karnataka, India
+
+Sec. 3.1 — Visual Symptoms
+Upward curling and crinkling of leaflets, leaves appear smaller and thickened,
+overall plant growth is stunted and bushy ("bonsai" appearance). Yellowing may
+appear along leaf veins. Flowering and fruit set are severely reduced on infected
+plants; fruit already set is usually unaffected in size but overall yield drops
+sharply.
+
+Sec. 3.2 — Triggering Conditions
+Transmitted exclusively by whitefly (Bemisia tabaci), not by soil, water, or
+mechanical contact. Risk rises sharply in warm, dry weather that favors whitefly
+population growth, and near other infected solanaceous crops or weeds acting as a
+virus reservoir. Young seedlings infected early in the season suffer the most yield
+loss.
+
+Sec. 3.3 — Recommended Treatment
+There is no curative chemical treatment for the virus itself — management is
+whitefly control and prevention. Apply imidacloprid 17.8% SL as a soil drench or
+foliar spray to control whitefly populations, rotating with a different
+insecticide class every 2-3 applications to avoid resistance. Remove and destroy
+infected plants promptly to reduce the whitefly's source of new virus. Use yellow
+sticky traps to monitor whitefly pressure and consider reflective mulch for young
+transplants in high-risk periods.

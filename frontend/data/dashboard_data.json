@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-10-18T13:10:59",
+  "window_days": 7,
+  "total_diagnosis_reports": 35,
+  "disease_counts": {
+    "early_blight": 14,
+    "leaf_curl_virus": 5,
+    "late_blight": 5
+  },
+  "active_outbreak_clusters": [
+    {
+      "disease": "early_blight",
+      "report_count": 4,
+      "center_village": "Kolar",
+      "severity": "elevated"
+    },
+    {
+      "disease": "early_blight",
+      "report_count": 3,
+      "center_village": "Chintamani",
+      "severity": "watch"
+    }
+  ],
+  "most_requested_treatment": "copper_oxychloride_50wp",
+  "plots_monitored": 80
+}

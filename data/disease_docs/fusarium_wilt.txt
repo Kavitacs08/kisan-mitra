@@ -1,0 +1,23 @@
+Disease: Fusarium Wilt (Fusarium oxysporum f. sp. lycopersici)
+Crop: Tomato
+Region: Karnataka, India
+
+Sec. 5.1 — Visual Symptoms
+Yellowing and wilting that typically begins on one side of the plant or on lower
+leaves first, progressing upward over days to weeks. Vascular tissue inside the
+stem shows a brown discoloration when cut, similar to bacterial wilt, but
+Fusarium progresses more slowly and the plant does not ooze bacterial slime.
+
+Sec. 5.2 — Triggering Conditions
+Favored by warm soil temperatures (around 28°C), acidic soil, and soil already
+weakened by nematode damage or nitrogen imbalance. The fungus survives for many
+years in soil as resistant spores and spreads through infected soil, water, and
+tools.
+
+Sec. 5.3 — Recommended Treatment
+No chemical cure after infection; remove and destroy infected plants and avoid
+replanting tomato in the same soil for 4+ years if possible. Favor resistant or
+tolerant tomato varieties where available. Improve soil pH toward neutral and
+manage nematodes, since nematode wounds increase infection risk. Solarizing soil
+with clear plastic sheeting during the hottest months can reduce fungal spore
+load before the next planting.

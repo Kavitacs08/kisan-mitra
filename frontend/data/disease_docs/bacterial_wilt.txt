@@ -1,0 +1,23 @@
+Disease: Bacterial Wilt (Ralstonia solanacearum)
+Crop: Tomato
+Region: Karnataka, India
+
+Sec. 4.1 — Visual Symptoms
+Sudden, irreversible wilting of the whole plant or individual branches, often with
+leaves still green at the time of collapse (unlike drought wilting, which shows
+leaf yellowing first). Cutting the lower stem reveals brown, discolored vascular
+tissue, and a milky bacterial ooze may appear when the cut stem is pressed or
+suspended in water.
+
+Sec. 4.2 — Triggering Conditions
+Favored by warm soil temperatures (above 24°C) and high soil moisture. The
+bacterium survives for years in soil and spreads through irrigation water, soil
+movement, and infected transplants. Root wounds from transplanting or cultivation
+increase infection risk.
+
+Sec. 4.3 — Recommended Treatment
+No effective chemical cure exists once a plant is infected; remove and destroy
+wilted plants immediately, including the root ball, to limit soil contamination.
+Avoid planting tomato, potato, brinjal, or chili in the same soil for at least
+2-3 seasons. Improve field drainage to reduce waterlogging. Source certified
+disease-free transplants and avoid transplanting during waterlogged conditions.

@@ -1,0 +1,18 @@
+# Secrets -- never commit the real API key
+.env
+frontend/js/config.js
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# Firebase local state
+.firebase/
+firebase-debug.log
+
+# OS
+.DS_Store
+Thumbs.db

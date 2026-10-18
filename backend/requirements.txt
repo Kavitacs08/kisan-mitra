@@ -1,0 +1,12 @@
+fastapi==0.115.0
+uvicorn==0.30.6
+pydantic==2.9.2
+requests==2.32.3
+scikit-learn==1.5.2
+
+# Uncomment once USE_MOCK=false and real GCP credentials are configured:
+# google-genai==0.3.0
+# google-cloud-translate==3.16.0
+# google-cloud-texttospeech==2.17.0
+# google-cloud-discoveryengine==0.11.14
+# google-cloud-firestore==2.19.0

@@ -1,0 +1,24 @@
+Disease: Late Blight (Phytophthora infestans)
+Crop: Tomato
+Region: Karnataka, India
+
+Sec. 2.1 — Visual Symptoms
+Water-soaked, pale green to dark olive-brown blotches on leaves and stems that
+expand rapidly, often with a white, fuzzy fungal growth visible on the underside
+of leaves in humid conditions. Unlike early blight, lesions lack concentric rings
+and can appear on young upper leaves too. Fruit develops firm, dark, greasy-looking
+brown patches. Entire plants can collapse within days under cool, wet weather.
+
+Sec. 2.2 — Triggering Conditions
+Favored by cool temperatures (15-20°C) with high humidity or prolonged leaf
+wetness, typically after extended rain or heavy fog. Spreads explosively through
+wind-blown spores during cool, overcast, damp spells. Far faster-moving and more
+destructive than early blight.
+
+Sec. 2.3 — Recommended Treatment
+Act immediately: remove and destroy infected plant material, do not compost it.
+Apply a mancozeb 75% WP or copper-based fungicide preventively before forecast rain,
+and continue at 5-7 day intervals during cool, wet spells. If an entire plot is
+heavily infected, prioritize protecting unaffected neighboring plots over trying to
+save badly collapsed plants. Avoid working in wet fields to prevent spreading spores
+on tools and clothing.

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kisan Mitra</title>
+<style>
+  :root {
+    --bg: #f6f5f0; --surface: #ffffff; --fg: #1b1f23; --muted: #5b6168;
+    --border: #dcd8ce; --accent: #1f7a4c; --accent-soft: #e5f4ee; --warn: #b8540d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 16px; line-height: 1.5; padding: 16px; padding-bottom: 48px;
+  }
+  .page { max-width: 480px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 4px 0 2px; }
+  .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px; margin-bottom: 14px;
+  }
+  .card h3 { margin: 0 0 8px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+
+  textarea {
+    width: 100%; min-height: 70px; border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px; font-size: 15px; font-family: inherit; resize: vertical;
+  }
+  .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+  button {
+    flex: 1; padding: 12px; border-radius: 10px; border: none; font-size: 15px;
+    font-weight: 600; cursor: pointer;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--accent-soft); color: var(--accent); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  #photoPreview { max-width: 100%; border-radius: 8px; margin-top: 10px; display: none; }
+
+  .outbreak-banner {
+    background: #fdecd8; border: 1px solid var(--warn); color: var(--warn);
+    border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: 14px;
+    display: none; position: relative;
+  }
+  .outbreak-banner button.dismiss {
+    position: absolute; top: 8px; right: 10px; background: none; border: none;
+    color: var(--warn); font-size: 16px; padding: 0; width: auto; flex: none;
+  }
+
+  .diagnosis-headline { font-size: 18px; font-weight: 700; }
+  .confidence-pill {
+    display: inline-block; font-size: 12px; background: var(--accent-soft); color: var(--accent);
+    padding: 2px 8px; border-radius: 20px; margin-left: 6px; font-weight: 600;
+  }
+  .cited { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .advisory-text { margin-top: 10px; font-size: 15px; }
+  .advisory-local { font-size: 16px; margin-top: 6px; }
+  .audio-note { font-size: 12.5px; color: var(--muted); font-style: italic; margin-top: 6px; }
+
+  .dealer-row, .price-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .dealer-row .name, .price-row .name { font-weight: 600; }
+  .dealer-row .dist, .price-row .dist { color: var(--muted); font-size: 13px; }
+  .price-value { font-size: 20px; font-weight: 700; color: var(--accent); }
+  .trend-up { color: var(--accent); } .trend-down { color: var(--warn); }
+
+  .plot-memory { background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; margin-top: 10px; }
+
+  #status { font-size: 13px; color: var(--muted); margin-top: 8px; min-height: 16px; }
+  .hidden { display: none !important; }
+
+  .claim-card { border-left: 4px solid #8a4fd1; }
+  .claim-id { font-family: monospace; font-size: 12.5px; color: var(--muted); }
+  .claim-detail { margin-top: 8px; font-size: 14px; }
+  .claim-detail .sev-badge {
+    display: inline-block; font-size: 11.5px; font-weight: 700; padding: 2px 8px;
+    border-radius: 20px; text-transform: uppercase; letter-spacing: 0.02em;
+  }
+  .sev-moderate { background: #fdecd8; color: var(--warn); }
+  .sev-severe { background: #fde0e0; color: #b8220d; }
+  .claim-next-step { margin-top: 8px; font-size: 13px; color: var(--muted); }
+
+  .groupbuy-card { border-left: 4px solid #1f7a4c; background: var(--accent-soft); }
+  .groupbuy-card h3 { color: var(--accent); }
+  .groupbuy-price-row { display: flex; align-items: baseline; gap: 10px; margin-top: 8px; }
+  .groupbuy-standard { text-decoration: line-through; color: var(--muted); font-size: 15px; }
+  .groupbuy-bulk { font-size: 22px; font-weight: 700; color: var(--accent); }
+  .groupbuy-note { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+  .dash-link { text-align: center; margin-top: 8px; }
+  .dash-link a { color: var(--muted); font-size: 12.5px; text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Kisan Mitra</h1>
+  <p class="subtitle">Photo in, cited diagnosis out — in your language.</p>
+
+  <div id="outbreakBanner" class="outbreak-banner">
+    <button class="dismiss" id="dismissOutbreakBtn">&times;</button>
+    <span id="outbreakText"></span>
+  </div>
+
+  <div class="card">
+    <h3>Describe the problem</h3>
+    <input type="file" id="photoInput" accept="image/*" capture="environment" />
+    <img id="photoPreview" />
+    <textarea id="symptomInput" placeholder="e.g. dark spots with rings on the bottom leaves, like a target">dark spots with rings on the bottom leaves, like a target</textarea>
+    <div class="btn-row">
+      <button class="btn-secondary" id="recordBtn">🎙 Speak instead</button>
+      <button class="btn-primary" id="diagnoseBtn">Diagnose</button>
+    </div>
+    <div id="status"></div>
+  </div>
+
+  <div id="resultCard" class="card hidden">
+    <h3>Diagnosis</h3>
+    <div class="diagnosis-headline">
+      <span id="diseaseName"></span>
+      <span class="confidence-pill" id="confidencePill"></span>
+    </div>
+    <div class="cited" id="citedSource"></div>
+    <div class="advisory-text" id="advisoryEn"></div>
+    <div class="advisory-local" id="advisoryLocal" lang="kn"></div>
+    <div class="audio-note" id="audioNote"></div>
+    <div id="plotMemory" class="plot-memory hidden"></div>
+  </div>
+
+  <div id="dealerCard" class="card hidden">
+    <h3>Nearest dealer in stock</h3>
+    <div class="dealer-row">
+      <span class="name" id="dealerName"></span>
+      <span class="dist" id="dealerDist"></span>
+    </div>
+    <div id="dealerPrice"></div>
+  </div>
+
+  <div id="sellCard" class="card hidden">
+    <h3>Best price to sell today</h3>
+    <div class="price-row">
+      <span class="name" id="marketName"></span>
+      <span class="dist" id="marketDist"></span>
+    </div>
+    <div class="price-value" id="marketPrice"></div>
+    <div id="marketTrend"></div>
+  </div>
+
+  <div id="claimCard" class="card claim-card hidden">
+    <h3>Crop-loss insurance evidence packet</h3>
+    <div class="claim-id" id="claimId"></div>
+    <div class="claim-detail">
+      <span class="sev-badge" id="claimSeverity"></span>
+      <span id="claimYieldLoss"></span>
+    </div>
+    <div class="claim-detail" id="claimSummary"></div>
+    <div class="claim-next-step" id="claimNextStep"></div>
+  </div>
+
+  <div id="groupBuyCard" class="card groupbuy-card hidden">
+    <h3>⚡ Group-buy opportunity</h3>
+    <div id="groupBuyFarmerCount"></div>
+    <div class="groupbuy-price-row">
+      <span class="groupbuy-standard" id="groupBuyStandardPrice"></span>
+      <span class="groupbuy-bulk" id="groupBuyBulkPrice"></span>
+    </div>
+    <div class="groupbuy-note" id="groupBuyNote"></div>
+  </div>
+
+  <div class="dash-link">
+    <a href="dashboard.html" target="_blank">View district dashboard (extension officer view) →</a>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

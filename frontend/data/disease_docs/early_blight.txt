@@ -1,0 +1,22 @@
+Disease: Early Blight (Alternaria solani)
+Crop: Tomato
+Region: Karnataka, India
+
+Sec. 1.1 — Visual Symptoms
+Dark brown to black spots with concentric rings ("target spot" pattern) on older,
+lower leaves first. Spots are typically 0.5-1.5 cm wide, often surrounded by a
+yellow halo. Severely affected leaves yellow, dry, and drop, exposing fruit to
+sunscald. Stem lesions appear as dark, sunken, concentric cankers near the soil line.
+
+Sec. 1.2 — Triggering Conditions
+Favored by warm temperatures (24-29°C) combined with periods of high humidity or
+leaf wetness, such as after rain or heavy dew. Spreads fastest when leaves stay wet
+for 12+ hours. Stressed plants (nutrient-deficient or drought-stressed) are more
+susceptible. Spores survive in soil and crop debris between seasons.
+
+Sec. 1.3 — Recommended Treatment
+Remove and destroy affected lower leaves at first sign of spotting to slow spread.
+Apply a copper oxychloride 50% WP spray (standard field rate per label) or a
+mancozeb 75% WP spray, repeating every 7-10 days during humid weather. Avoid
+overhead irrigation late in the day; water at the base in the morning instead.
+Rotate away from tomato/potato family crops for at least one season if recurrent.

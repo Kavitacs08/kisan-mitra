@@ -1,0 +1,22 @@
+Disease: Septoria Leaf Spot (Septoria lycopersici)
+Crop: Tomato
+Region: Karnataka, India
+
+Sec. 7.1 — Visual Symptoms
+Numerous small, circular spots (2-3 mm) with dark brown margins and tan-to-gray
+centers, often with tiny black specks (fungal fruiting bodies) visible in the
+center under close inspection. Spots are smaller and more numerous than early
+blight lesions and typically start on the oldest, lowest leaves before moving
+upward. Heavily spotted leaves yellow and drop.
+
+Sec. 7.2 — Triggering Conditions
+Favored by warm, humid weather with extended leaf wetness from rain, dew, or
+overhead irrigation. Spreads via rain splash and overhead watering, and
+survives on crop debris and nearby weeds between seasons.
+
+Sec. 7.3 — Recommended Treatment
+Remove lower infected leaves and any debris on the ground around the plant.
+Apply a mancozeb 75% WP spray at 7-10 day intervals during humid periods, same
+as the early blight protocol, since both respond to similar fungicide classes.
+Switch to drip or base-level irrigation instead of overhead watering, and
+improve plant spacing for airflow to reduce leaf wetness duration.

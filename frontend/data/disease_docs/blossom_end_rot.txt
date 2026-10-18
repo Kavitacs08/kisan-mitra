@@ -1,0 +1,24 @@
+Disorder: Blossom End Rot
+Crop: Tomato
+Region: Karnataka, India
+
+Sec. 6.1 — Visual Symptoms
+A sunken, dark brown to black leathery patch at the blossom end (bottom tip) of
+the fruit, opposite the stem. The rest of the fruit usually ripens normally
+around it. This is a physiological disorder, not a disease — there is no fungal
+growth, insect damage, or spreading lesion pattern on leaves.
+
+Sec. 6.2 — Triggering Conditions
+Caused by localized calcium deficiency in the developing fruit, almost always
+driven by inconsistent watering (alternating drought and flooding) rather than
+true soil calcium shortage, since uneven water supply disrupts calcium uptake
+and transport. Fast-growing young plants under high fruit load are most
+susceptible, especially during hot, dry spells.
+
+Sec. 6.3 — Recommended Treatment
+There is no treatment for already-affected fruit; remove and discard it.
+Prevent further occurrence by maintaining even soil moisture through mulching
+and consistent, scheduled watering rather than infrequent heavy watering.
+A foliar calcium spray can help in acute cases but even watering is the more
+effective long-term fix. Avoid excessive nitrogen fertilizer, which accelerates
+leafy growth faster than calcium can be transported to fruit.

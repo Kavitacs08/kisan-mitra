@@ -1,0 +1,22 @@
+Reference: Healthy Tomato Plant Baseline
+Crop: Tomato
+Region: Karnataka, India
+
+Sec. 9.1 — Visual Baseline
+A healthy tomato plant has uniform deep-green leaves with no spotting, curling,
+yellowing, wilting, or stippling. Leaf edges lie flat, not crinkled or upward-
+curled. Stems are firm and upright, not sunken or dark at the base. Fruit sets
+evenly without sunken end patches or greasy brown blotches. Growth looks vigorous
+and bushy only in proportion to the plant's age, not stunted relative to
+neighboring plants of the same age.
+
+Sec. 9.2 — When to Still Monitor
+Even a plant that looks healthy today should be rechecked after heavy rain or a
+hot, dry spell, since early blight, late blight, and spider mite damage can
+appear within days once conditions turn favorable for them.
+
+Sec. 9.3 — Recommended Action
+No treatment needed. Continue routine watering and monitoring. If several nearby
+plots have recently reported disease, inspect this plot more frequently than
+usual during that window, since the same conditions and sometimes the same pest
+vectors affect neighboring fields.
