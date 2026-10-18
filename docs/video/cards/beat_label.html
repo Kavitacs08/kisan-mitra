@@ -12,16 +12,28 @@
     width: 100%; height: 100%; display: flex; flex-direction: column;
     align-items: center; justify-content: center; text-align: center; padding: 0 100px;
   }
-  .num { font-size: 24px; font-weight: 600; color: #4dd0e1; letter-spacing: 0.1em; margin-bottom: 18px; }
   .headline { font-size: 56px; font-weight: 800; color: #ffffff; line-height: 1.15; }
   .sub { font-size: 26px; font-weight: 400; color: #b0b0b0; margin-top: 20px; max-width: 980px; line-height: 1.4; }
+
+  .stat-row { display: flex; gap: 70px; margin-bottom: 40px; }
+  .stat { text-align: center; }
+  .stat-num { font-size: 100px; font-weight: 800; color: #ff8a65; line-height: 1; }
+  .stat-label { font-size: 18px; font-weight: 600; color: #ffab91; letter-spacing: 0.04em; margin-top: 10px; text-transform: uppercase; max-width: 280px; }
+
+  .checklist { display: flex; flex-direction: column; gap: 16px; margin-top: 34px; text-align: left; }
+  .check-item { display: flex; align-items: center; gap: 14px; font-size: 25px; font-weight: 600; color: #e8f5e9; }
+  .check-item .mark {
+    flex: none; width: 34px; height: 34px; border-radius: 50%; background: #2e7d32;
+    color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
 </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="num">__NUM__</div>
+    __STAT_BLOCK__
     <div class="headline">__HEADLINE__</div>
     <div class="sub">__SUB__</div>
+    __LIST_BLOCK__
   </div>
 </body>
 </html>

@@ -38,8 +38,18 @@ SEGMENTS = [
      "Karnataka.", None),
 
     ("01_problem", VOICE_EN,
-     "A smallholder farmer spots a diseased leaf. No agronomist to call, "
-     "one bar of signal.", None),
+     "Eighty-six percent of India's farmers are smallholders. One bad "
+     "disease outbreak can wipe out an entire season's income. There's no "
+     "agronomist on call, no reliable signal to search with, and by the "
+     "time the damage is visible, it's already too late to stop it "
+     "spreading.", None),
+
+    ("01b_solution", VOICE_EN,
+     "Kisan Mitra turns a photo and a few spoken words into a cited "
+     "diagnosis, a spoken answer in the farmer's own language, and real "
+     "economic action: the nearest dealer, an outbreak warning before "
+     "damage shows, an insurance claim ready to file, and a group "
+     "discount with other farmers nearby.", None),
 
     ("02_watch", VOICE_EN,
      "Watch what happens, live.", None),
@@ -61,6 +71,15 @@ SEGMENTS = [
     ("04c_combo_outro", VOICE_EN,
      "The nearest dealer. An insurance packet, ready to file. One "
      "diagnosis, five real actions.", None),
+
+    ("04d_groupbuy", VOICE_EN,
+     "Look closer at one of those actions: the group-buy card. Five "
+     "nearby farmers, flagged by the same outbreak signal, all need the "
+     "same treatment this week. Kisan Mitra checks the dealer's own bulk "
+     "pricing tier and automatically unlocks a twelve percent discount "
+     "the moment combined demand crosses the threshold: one-eighty "
+     "rupees a kilogram alone, down to one fifty-eight together, same "
+     "dealer, same day.", None),
 
     ("05_one_screen", VOICE_EN,
      "Diagnosis that doesn't stop at diagnosis.", None),

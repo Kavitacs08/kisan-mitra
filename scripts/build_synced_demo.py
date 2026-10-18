@@ -108,8 +108,8 @@ def main():
 
     # ---- Read each narration segment's actual duration ----
     seg_ids = [
-        "00_title", "01_problem", "02_watch", "03_diagnosis",
-        "04a_combo_intro", "04b_kannada", "04c_combo_outro",
+        "00_title", "01_problem", "01b_solution", "02_watch", "03_diagnosis",
+        "04a_combo_intro", "04b_kannada", "04c_combo_outro", "04d_groupbuy",
         "05_one_screen", "06_scale", "07_dashboard", "08_closing",
     ]
     dur = {}
@@ -128,19 +128,46 @@ def main():
     render_card_png(os.path.join(CARDS_DIR, "title.html"), title_png)
     png_to_clip(title_png, os.path.join(RENDERED_DIR, "c_title.mp4"), vdur["00_title"])
 
+    stat_block = (
+        '<div class="stat-row">'
+        '<div class="stat"><div class="stat-num">86%</div><div class="stat-label">of India\'s farmers<br>are smallholders</div></div>'
+        '<div class="stat"><div class="stat-num">1</div><div class="stat-label">bar of signal.<br>Zero agronomists on call</div></div>'
+        "</div>"
+    )
+    list_block = (
+        '<div class="checklist">'
+        '<div class="check-item"><div class="mark">&#10003;</div>Cited diagnosis, not a black-box guess</div>'
+        '<div class="check-item"><div class="mark">&#10003;</div>Spoken answer, in the farmer\'s own language</div>'
+        '<div class="check-item"><div class="mark">&#10003;</div>Nearest dealer, outbreak warning, insurance, group discount</div>'
+        "</div>"
+    )
     beat_specs = {
-        "01_problem": ("BEAT 1", "The problem", "A smallholder tomato farmer near Kolar, one bar of signal, no agronomist to call."),
-        "02_watch": ("BEAT 2 / 3", "Live diagnosis, cited — and the orchestration behind it", "Gemini diagnoses with a citation, then a second Gemini call decides which tools to invoke."),
-        "05_one_screen": ("BEAT 4", "One screen, five actions", "Outbreak alert, dealer, insurance packet — diagnosis that doesn't stop at diagnosis."),
-        "06_scale": ("BEAT 5", "Scale: the district view", "The same signal, aggregated and anonymized, for an extension officer."),
+        "01_problem": ("The problem is enormous", "Smallholders have no agronomist, no reliable signal, and no warning before damage spreads.", stat_block, ""),
+        "01b_solution": ("The solution: one photo, five real actions", "Not just a diagnosis app — an agent that acts on it.", "", list_block),
+        "02_watch": ("Live diagnosis, cited — and the orchestration behind it", "Gemini diagnoses with a citation, then a second Gemini call decides which tools to invoke.", "", ""),
+        "05_one_screen": ("One screen, five actions", "Outbreak alert, dealer, insurance packet — diagnosis that doesn't stop at diagnosis.", "", ""),
+        "06_scale": ("Scale: the district view", "The same signal, aggregated and anonymized, for an extension officer.", "", ""),
     }
-    for sid, (num, headline, sub) in beat_specs.items():
+    for sid, (headline, sub, stat_html, list_html) in beat_specs.items():
         png = os.path.join(RENDERED_DIR, f"{sid}.png")
         render_card_png(
             os.path.join(CARDS_DIR, "beat_label.html"), png,
-            replacements={"__NUM__": num, "__HEADLINE__": headline, "__SUB__": sub},
+            replacements={"__HEADLINE__": headline, "__SUB__": sub, "__STAT_BLOCK__": stat_html, "__LIST_BLOCK__": list_html},
         )
         png_to_clip(png, os.path.join(RENDERED_DIR, f"c_{sid}.mp4"), vdur[sid])
+
+    # ---- Group-buy explainer card: real screenshot + callouts ----
+    groupbuy_img_path = os.path.abspath(os.path.join(VIDEO_DIR, "assets", "groupbuy_card_crop.png")).replace("\\", "/")
+    groupbuy_png = os.path.join(RENDERED_DIR, "04d_groupbuy.png")
+    render_card_png(
+        os.path.join(CARDS_DIR, "groupbuy_explainer.html"), groupbuy_png,
+        replacements={
+            "__HEADLINE__": "The group-buy card, explained",
+            "__SUB__": "Real screenshot from the deployed app — not a mockup.",
+            "__IMG_PATH__": groupbuy_img_path,
+        },
+    )
+    png_to_clip(groupbuy_png, os.path.join(RENDERED_DIR, "c_04d_groupbuy.mp4"), vdur["04d_groupbuy"])
 
     closing_png = os.path.join(RENDERED_DIR, "closing.png")
     render_card_png(os.path.join(CARDS_DIR, "closing.html"), closing_png)
@@ -157,6 +184,7 @@ def main():
         extend_with_freeze(os.path.join(RENDERED_DIR, "app_diag.mp4"), os.path.join(RENDERED_DIR, "app_diag.mp4"), diag_target)
 
     # ---- App combo clip: covers 04a + 04b (Kannada) + 04c combined ----
+    # (04d_groupbuy is its own screenshot-explainer card, not part of this live clip)
     combo_target = vdur["04a_combo_intro"] + vdur["04b_kannada"] + vdur["04c_combo_outro"]
     remaining_raw = max(0.0, raw_app_duration - diag_target)
     combo_raw_path = os.path.join(RENDERED_DIR, "app_combo_raw.mp4")
@@ -182,9 +210,11 @@ def main():
     sequence = [
         os.path.join(RENDERED_DIR, "c_title.mp4"),
         os.path.join(RENDERED_DIR, "c_01_problem.mp4"),
+        os.path.join(RENDERED_DIR, "c_01b_solution.mp4"),
         os.path.join(RENDERED_DIR, "c_02_watch.mp4"),
         os.path.join(RENDERED_DIR, "app_diag.mp4"),
         app_combo_path,
+        os.path.join(RENDERED_DIR, "c_04d_groupbuy.mp4"),
         os.path.join(RENDERED_DIR, "c_05_one_screen.mp4"),
         os.path.join(RENDERED_DIR, "c_06_scale.mp4"),
         dash_path,
