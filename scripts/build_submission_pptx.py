@@ -301,17 +301,25 @@ def main():
             set_textbox(shape, [("Additional Details / Future Development", True)], title_size=16, title_font=FONT_HEAD)
     future13 = add_textbox(s13, 0.29, 1.4, 9.4, 3.9)
     add_bullets(future13, [
+        "Next step — upgrade to managed Google Cloud services once billing is available: "
+        "Gemini moved behind a Cloud Run/Cloud Functions proxy (closes the current public-key "
+        "exposure and removes the 20-req/day free-tier ceiling), Firestore replacing the static "
+        "dealer/price/history JSON so the district dashboard becomes genuinely live instead of a "
+        "deploy-time snapshot, Vertex AI Search replacing the hand-rolled TF-IDF retrieval, and "
+        "Cloud Translation/Text-to-Speech replacing the template-based Kannada advisory. Every "
+        "substitute today sits behind one isolated call site per module, so each swap is "
+        "incremental, not a rewrite.",
         "Offline-first fallback (planned): a distilled on-device TensorFlow Lite classifier for "
         "the 8–10 most common regional diseases, so core diagnosis keeps working when "
         "connectivity drops entirely. Training script already written, pending a real "
         "multi-hour training run on the full PlantVillage dataset.",
-        "Expansion path: adding a new crop or region means indexing a new disease guide into "
-        "Vertex AI Search, not rewriting the diagnosis logic — the architecture is crop-agnostic "
+        "Expansion path: adding a new crop or region means indexing a new disease guide into the "
+        "retrieval layer, not rewriting the diagnosis logic — the architecture is crop-agnostic "
         "by design even though this build is scoped to tomato in Karnataka for the demo.",
         "Resource & environmental impact: targeted treatment instead of blanket spraying, "
         "weather-timed application to reduce chemical runoff, and earlier detection to reduce "
         "crop loss — moving this beyond social impact into genuine sustainability.",
-    ], size=14, space_after=10)
+    ], size=13, space_after=7)
 
     # ---- Slide 14: Links ----
     s14 = prs.slides[13]
