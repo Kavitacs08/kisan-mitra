@@ -552,9 +552,9 @@ def main():
             set_textbox(shape, [
                 ("Provide links to your:", True),
                 ("GitHub Public Repository: https://github.com/Kavitacs08/kisan-mitra", False),
-                ("Demo Video Link (3 Minutes): [add link before submission]", False),
+                ("Demo Video Link (3 Minutes): https://github.com/Kavitacs08/kisan-mitra/raw/main/docs/video/Kisan_Mitra_Demo.mp4", False),
                 ("Final Product Link: https://kisan-mitra-2026-56c5d.web.app", False),
-            ], title_size=16, body_size=14, title_font=FONT_HEAD_SEMI)
+            ], title_size=16, body_size=13, title_font=FONT_HEAD_SEMI)
 
     prs.save(OUT_PPTX)
     print(f"Wrote {OUT_PPTX}")
