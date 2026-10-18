@@ -166,6 +166,8 @@ def main():
         "Crop-loss insurance claim assistant — auto-generates a fileable evidence packet",
         "Group-buy / collective bargaining alert — coordinates nearby farmers for a bulk discount",
         "District dashboard — anonymized, village-level view for an extension officer or NGO",
+        "Gemini-driven orchestration — the model itself decides which of these tools to call, "
+        "via real function-calling, not a hardcoded decision tree",
     ], size=13, space_after=4)
 
     # ---- Slide 6: Process flow / use-case diagram ----
@@ -175,14 +177,20 @@ def main():
             set_textbox(shape, [("Process flow diagram or Use-case diagram", True)], title_size=16, title_font=FONT_HEAD)
     flow6 = add_textbox(s6, 0.29, 1.5, 9.4, 3.8)
     add_bullets(flow6, [
-        "Farmer speaks/types symptom + uploads photo",
-        "→ Gemini multimodal diagnosis grounded via Vertex AI Search (RAG) over the regional disease guide",
+        "Farmer speaks/types symptom + optionally uploads a photo, entirely in the browser",
+        "→ Gemini multimodal diagnosis call, grounded by RAG retrieval (TF-IDF, hand-rolled in "
+        "JS) over bilingual English + Kannada disease guides shipped with the site",
         "→ Weather tool call (Open-Meteo) checked before recommending a spray",
-        "→ Branch: diseased → dealer lookup + outbreak check + insurance claim check + group-buy check  |  healthy + near harvest → sell-price lookup",
-        "→ Advisory translated to Kannada, converted to speech",
+        "→ A second Gemini call, using real function-calling, decides WHICH of 4 tools to invoke "
+        "(dealer lookup, sell-price lookup, insurance-claim check, group-buy check) based on the "
+        "diagnosis, outbreak signal, and near-harvest flag — not a hardcoded if/else",
+        "→ Chosen tools run against the known dealer/pricing data; results assembled",
+        "→ Advisory translated to Kannada, spoken via the browser's own Web Speech API if a "
+        "kn-IN voice is available",
         "→ Response rendered: diagnosis, dealer card, outbreak banner, insurance packet, group-buy card",
-        "→ Separately: district dashboard aggregates all diagnosis history, anonymized to village level, for an extension officer",
-    ], size=13, space_after=8)
+        "→ Separately: district dashboard loads a pre-aggregated, anonymized village-level "
+        "snapshot built at deploy time, never raw farmer data",
+    ], size=12.5, space_after=6)
 
     # ---- Slide 7: Wireframes (use the real screenshots) ----
     s7 = prs.slides[6]
@@ -199,16 +207,22 @@ def main():
             set_textbox(shape, [("Architecture diagram of the proposed solution", True)], title_size=16, title_font=FONT_HEAD)
     arch8 = add_textbox(s8, 0.29, 1.4, 9.4, 3.9)
     add_bullets(arch8, [
-        "Farmer (photo + voice) → Firebase Hosting (frontend) → Cloud Run (FastAPI backend)",
-        "Gemini multimodal diagnosis, grounded via Vertex AI Search over the regional disease guide",
-        "Cloud Translation + Cloud Text-to-Speech for the Kannada voice advisory",
-        "Firestore holds the dealer directory, mandi prices, and diagnosis history",
-        "Diagnosis history feeds three agentic reasoning steps: a geo-radius outbreak query, a "
-        "per-plot history query for recurring issues, and a district-wide aggregation for the "
-        "extension-officer dashboard",
-        "An outbreak signal additionally triggers a bulk-pricing check against the dealer "
-        "directory for the group-buy alert",
-    ], size=14)
+        "100% client-side static site — no backend server, no billing account, no credit card "
+        "anywhere in the deployed stack — Firebase Hosting (free Spark plan) serves the app",
+        "Diagnosis: a real Gemini multimodal API call direct from the browser, grounded by a "
+        "hand-rolled TF-IDF + cosine-similarity RAG index over 18 disease documents (9 English + "
+        "9 Kannada), so a Kannada symptom description retrieves relevant passages natively",
+        "Orchestration: a second Gemini call uses real function-calling (tools/"
+        "functionDeclarations) to decide which of 4 downstream tools to invoke — the model "
+        "drives the decision, not a hardcoded branch — falling back to equivalent deterministic "
+        "rules only if the live call fails after retries",
+        "Weather: a direct, keyless call to the free Open-Meteo API (confirmed CORS-enabled)",
+        "Dealer directory, mandi prices, and diagnosis history ship as static JSON/CSV with the "
+        "site; the district dashboard loads a pre-aggregated snapshot built at deploy time from "
+        "the private farmer dataset, so raw farmer/plot linkage never ships publicly",
+        "Voice advisory: the browser's own Web Speech API (SpeechSynthesis), feature-detecting a "
+        "kn-IN voice at runtime",
+    ], size=13)
 
     # ---- Slide 9: Technologies ----
     s9 = prs.slides[8]
@@ -217,15 +231,20 @@ def main():
             set_textbox(shape, [("Technologies to be used in the solution", True)], title_size=16, title_font=FONT_HEAD)
     tech9 = add_textbox(s9, 0.29, 1.4, 9.4, 3.9)
     add_bullets(tech9, [
-        "Gemini (Vertex AI) — multimodal diagnosis, function calling, synthesis",
-        "Vertex AI Search — RAG grounding over the regional disease guide",
-        "Cloud Run — FastAPI backend hosting",
-        "Firebase Hosting — frontend hosting",
-        "Firestore — dealer directory, mandi prices, diagnosis history",
-        "Cloud Translation API + Cloud Text-to-Speech — Kannada voice advisory",
-        "Open-Meteo — live weather context",
-        "Python (FastAPI, pydantic), scikit-learn (RAG retrieval), Playwright (verification)",
-    ], size=14, space_after=5)
+        "Gemini API (gemini-3.8-flash) — called directly from the browser for two things: "
+        "multimodal diagnosis, and a second call using real function-calling to decide which "
+        "tools to invoke",
+        "Firebase Hosting — free Spark plan, zero billing, serves the entire static site",
+        "Vanilla JavaScript (ES modules) — no framework, no bundler, no agentic framework "
+        "(no LangChain/CrewAI/Vertex Agent Builder) — direct fetch() calls to the Gemini API",
+        "Hand-rolled TF-IDF + cosine similarity (JS) — RAG retrieval over the disease guides, "
+        "no vector database or external search service",
+        "Open-Meteo — free, keyless weather API",
+        "Web Speech API (browser-native) — speech recognition for Kannada voice input, "
+        "SpeechSynthesis for voice output",
+        "Static JSON/CSV data files — dealer directory, mandi prices, diagnosis history",
+        "Python (data generation, build-time dashboard aggregation), Playwright (verification)",
+    ], size=13, space_after=4)
 
     # ---- Slide 10: Estimated implementation cost ----
     s10 = prs.slides[9]
@@ -234,16 +253,16 @@ def main():
             set_textbox(shape, [("Estimated implementation cost", True)], title_size=16, title_font=FONT_HEAD)
     cost10 = add_textbox(s10, 0.29, 1.4, 9.4, 3.9)
     add_bullets(cost10, [
-        "Gemini API (Vertex AI): pay-per-call, multimodal + text — estimated low cost at pilot "
-        "scale (a few thousand diagnoses/month)",
-        "Vertex AI Search: billed per query + storage — a single regional disease guide (9 "
-        "documents) is a negligible index size",
-        "Cloud Run + Firebase Hosting: both have a generous free tier; this workload stays within "
-        "it at pilot scale",
-        "Cloud Translation + Text-to-Speech: billed per character — Kannada advisory text is "
-        "short (1–2 sentences per diagnosis)",
-        "Firestore: free tier covers a pilot-scale dealer directory and diagnosis history",
-        "Google Cloud's $300 new-account credit comfortably covers hackathon build and pilot testing",
+        "Current deployed cost: $0 — no billing account, no credit card, anywhere in the stack",
+        "Firebase Hosting: free Spark plan, no usage cap reached at this scale",
+        "Gemini API: free tier via Google AI Studio — 20 requests/day per project for "
+        "gemini-3.8-flash; each diagnosis now uses 2 calls (diagnosis + orchestration), so "
+        "roughly 10 full diagnoses/day before the app gracefully falls back to deterministic "
+        "logic for the rest of the day",
+        "Open-Meteo, Web Speech API: free, no quota observed in testing",
+        "Scaling beyond the free tier: upgrading to a paid Gemini tier is the only cost that "
+        "would be needed to raise the daily diagnosis cap — no other paid service is required "
+        "even at higher usage, since there is no backend, database, or search service to scale",
     ], size=14)
 
     # ---- Slide 11: Snapshots of the prototype ----
@@ -261,15 +280,19 @@ def main():
             set_textbox(shape, [("Prototype Performance report / Benchmarking", True)], title_size=16, title_font=FONT_HEAD)
     perf12 = add_textbox(s12, 0.29, 1.4, 9.4, 3.9)
     add_bullets(perf12, [
-        "Measured live against the running FastAPI backend (5 requests per endpoint, mock mode):",
-        "GET /health — avg 5ms",
-        "GET /dealer-lookup — avg 9ms",
-        "GET /outbreak-check — avg 30ms (geo-radius query over 300 diagnosis records)",
-        "GET /district-dashboard — avg 24ms (full district aggregation, anonymized to village level)",
-        "POST /diagnose (full pipeline incl. live Open-Meteo weather call) — avg 924ms",
-        "Verified end-to-end with Playwright against the live browser UI — zero console errors "
-        "across the main app and the district dashboard",
-    ], size=14, space_after=6)
+        "Measured live in the browser against the deployed static site (5 calls per operation):",
+        "RAG retrieval (TF-IDF index build, cold) — ~92ms once per session; warm lookups <1ms",
+        "Dealer / sell-price lookup — ~0.1–2.5ms (in-memory JSON lookups)",
+        "Outbreak check (geo-radius over 300 diagnosis records) — ~3.6ms avg",
+        "District dashboard snapshot load — ~17ms avg",
+        "Weather (live Open-Meteo call) — ~660ms avg (external network call)",
+        "Full diagnosis pipeline (2 Gemini calls: diagnosis + orchestration) — several seconds "
+        "under normal quota; up to ~20s worst case if quota is exhausted and both calls exhaust "
+        "retries before falling back",
+        "Verified end-to-end with Playwright against the live deployed URL, with zero local "
+        "servers running — confirms zero hidden dependency on anything other than the public "
+        "Gemini and Open-Meteo APIs",
+    ], size=13, space_after=5)
 
     # ---- Slide 13: Additional details / future development ----
     s13 = prs.slides[12]
@@ -296,9 +319,9 @@ def main():
         if shape.has_text_frame and "Provide links" in shape.text_frame.text:
             set_textbox(shape, [
                 ("Provide links to your:", True),
-                ("GitHub Public Repository: [add link before submission]", False),
+                ("GitHub Public Repository: https://github.com/Kavitacs08/kisan-mitra", False),
                 ("Demo Video Link (3 Minutes): [add link before submission]", False),
-                ("Final Product Link: [add link before submission]", False),
+                ("Final Product Link: https://kisan-mitra-2026-56c5d.web.app", False),
             ], title_size=16, body_size=14, title_font=FONT_HEAD_SEMI)
 
     prs.save(OUT_PPTX)
