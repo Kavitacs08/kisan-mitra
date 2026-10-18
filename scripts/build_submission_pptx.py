@@ -9,7 +9,9 @@ import os
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+from pptx.enum.shapes import MSO_SHAPE
+from pptx.oxml.ns import qn
 
 TEMPLATE_PATH = r"C:\Users\KavitaChegaraddi\Downloads\Submission Template _ AI Builder Cup.pptx"
 APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,6 +25,108 @@ ACCENT = RGBColor(0x00, 0x97, 0xA7)
 FONT_HEAD = "Google Sans Flex Medium"
 FONT_HEAD_SEMI = "Google Sans Flex SemiBold"
 FONT_BODY = "Google Sans Flex"
+
+# ---- Diagram palette (boxes-and-arrows style, inspired by the reference deck) ----
+FILL_NEUTRAL = RGBColor(0xF1, 0xF1, 0xF1)
+LINE_NEUTRAL = RGBColor(0xB0, 0xB0, 0xB0)
+FILL_AI = RGBColor(0xE1, 0xF5, 0xFE)
+LINE_AI = RGBColor(0x4F, 0xC3, 0xF7)
+FILL_ACCENT = RGBColor(0xB2, 0xEB, 0xF2)
+LINE_ACCENT = ACCENT
+FILL_TOOLS = RGBColor(0xE8, 0xF5, 0xE9)
+LINE_TOOLS = RGBColor(0x81, 0xC7, 0x84)
+FILL_CALLOUT = RGBColor(0xE3, 0xF2, 0xFD)
+LINE_CALLOUT = ACCENT
+FILL_HOST = RGBColor(0xFF, 0xF3, 0xE0)
+LINE_HOST = RGBColor(0xFF, 0xB7, 0x4D)
+
+
+def row_boxes(n, left, right, gap=0.15):
+    """Returns [(box_left, box_width), ...] for n boxes evenly spaced
+    between left and right with the given gap between them."""
+    total_gap = gap * (n - 1)
+    w = (right - left - total_gap) / n
+    return [(left + i * (w + gap), w) for i in range(n)]
+
+
+def add_diagram_box(slide, left, top, width, height, lines, fill, line_color,
+                     title_size=10, detail_size=8):
+    """lines: list of (text, is_title) tuples, centered, for a single
+    rounded-rectangle diagram node."""
+    shape = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(left), Inches(top), Inches(width), Inches(height))
+    shape.fill.solid()
+    shape.fill.fore_color.rgb = fill
+    shape.line.color.rgb = line_color
+    shape.line.width = Pt(1)
+    shape.shadow.inherit = False
+    tf = shape.text_frame
+    tf.word_wrap = True
+    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+    tf.margin_left = Inches(0.07)
+    tf.margin_right = Inches(0.07)
+    tf.margin_top = Inches(0.02)
+    tf.margin_bottom = Inches(0.02)
+    first = True
+    for text, is_title in lines:
+        p = tf.paragraphs[0] if first else tf.add_paragraph()
+        first = False
+        p.alignment = PP_ALIGN.CENTER
+        p.line_spacing = 1.0
+        run = p.add_run()
+        run.text = text
+        run.font.size = Pt(title_size if is_title else detail_size)
+        run.font.bold = is_title
+        run.font.name = FONT_HEAD_SEMI if is_title else FONT_BODY
+        run.font.color.rgb = INK if is_title else MUTED
+    return shape
+
+
+def add_down_arrow(slide, x_center, top, height, color=LINE_NEUTRAL):
+    """A small centered down-arrow glyph marking flow between diagram rows."""
+    tb = slide.shapes.add_textbox(Inches(x_center - 0.15), Inches(top), Inches(0.3), Inches(height))
+    tf = tb.text_frame
+    tf.margin_left = Emu(0)
+    tf.margin_right = Emu(0)
+    tf.margin_top = Emu(0)
+    tf.margin_bottom = Emu(0)
+    p = tf.paragraphs[0]
+    p.alignment = PP_ALIGN.CENTER
+    run = p.add_run()
+    run.text = "\u2193"
+    run.font.size = Pt(14)
+    run.font.bold = True
+    run.font.color.rgb = color
+    return tb
+
+
+def add_row_label(slide, left, top, width, height, text):
+    """Small vertical-ish category label to the left of a diagram row,
+    matching the reference deck's left-hand layer labels."""
+    tb = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+    tf = tb.text_frame
+    tf.word_wrap = True
+    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+    tf.margin_left = Emu(0)
+    tf.margin_right = Emu(0)
+    p = tf.paragraphs[0]
+    p.alignment = PP_ALIGN.LEFT
+    run = p.add_run()
+    run.text = text
+    run.font.size = Pt(8)
+    run.font.bold = True
+    run.font.name = FONT_HEAD_SEMI
+    run.font.color.rgb = MUTED
+    return tb
+
+
+def delete_slide(prs, index):
+    """python-pptx has no native slide-removal API; drop the relationship
+    and remove the slide id entry directly."""
+    xml_slides = prs.slides._sldIdLst
+    slides = list(xml_slides)
+    rId = slides[index].get(qn('r:id'))
+    prs.part.drop_rel(rId)
+    xml_slides.remove(slides[index])
 
 
 def duplicate_slide_layout(prs, source_slide):
@@ -98,6 +202,12 @@ def add_picture_fit(slide, img_path, left, top, max_w, max_h):
 def main():
     prs = Presentation(TEMPLATE_PATH)
 
+    # ---- Remove slide 2: the template's own "Note: please download..." instructions ----
+    for idx, slide in enumerate(prs.slides):
+        if any(sh.has_text_frame and "Note: Please download this template" in sh.text_frame.text for sh in slide.shapes):
+            delete_slide(prs, idx)
+            break
+
     # ---- Slide 1: Team Details ----
     s1 = prs.slides[0]
     for shape in s1.shapes:
@@ -111,7 +221,7 @@ def main():
             ], title_size=22, body_size=14, title_font=FONT_HEAD_SEMI)
 
     # ---- Slide 3: Brief about the idea ----
-    s3 = prs.slides[2]
+    s3 = prs.slides[1]
     for shape in s3.shapes:
         if shape.has_text_frame and "Brief about the idea" in shape.text_frame.text:
             set_textbox(shape, [("Brief about the idea", True)], title_size=16, title_font=FONT_HEAD)
@@ -132,7 +242,7 @@ def main():
     ], size=14)
 
     # ---- Slide 4: Opportunities ----
-    s4 = prs.slides[3]
+    s4 = prs.slides[2]
     for shape in s4.shapes:
         if shape.has_text_frame and "Opportunities" in shape.text_frame.text:
             set_textbox(shape, [("Opportunities", True)], title_size=16, title_font=FONT_HEAD)
@@ -151,7 +261,7 @@ def main():
     ], size=14)
 
     # ---- Slide 5: List of features ----
-    s5 = prs.slides[4]
+    s5 = prs.slides[3]
     for shape in s5.shapes:
         if shape.has_text_frame and "List of features" in shape.text_frame.text:
             set_textbox(shape, [("List of features offered by the solution", True)], title_size=16, title_font=FONT_HEAD)
@@ -170,62 +280,143 @@ def main():
         "via real function-calling, not a hardcoded decision tree",
     ], size=13, space_after=4)
 
-    # ---- Slide 6: Process flow / use-case diagram ----
-    s6 = prs.slides[5]
+    # ---- Slide 6: Process flow diagram (boxes + arrows, not bullet text) ----
+    s6 = prs.slides[4]
     for shape in s6.shapes:
         if shape.has_text_frame and "Process flow" in shape.text_frame.text:
             set_textbox(shape, [("Process flow diagram or Use-case diagram", True)], title_size=16, title_font=FONT_HEAD)
-    flow6 = add_textbox(s6, 0.29, 1.5, 9.4, 3.8)
-    add_bullets(flow6, [
-        "Farmer speaks/types symptom + optionally uploads a photo, entirely in the browser",
-        "→ Gemini multimodal diagnosis call, grounded by RAG retrieval (TF-IDF, hand-rolled in "
-        "JS) over bilingual English + Kannada disease guides shipped with the site",
-        "→ Weather tool call (Open-Meteo) checked before recommending a spray",
-        "→ A second Gemini call, using real function-calling, decides WHICH of 4 tools to invoke "
-        "(dealer lookup, sell-price lookup, insurance-claim check, group-buy check) based on the "
-        "diagnosis, outbreak signal, and near-harvest flag — not a hardcoded if/else",
-        "→ Chosen tools run against the known dealer/pricing data; results assembled",
-        "→ Advisory translated to Kannada, spoken via the browser's own Web Speech API if a "
-        "kn-IN voice is available",
-        "→ Response rendered: diagnosis, dealer card, outbreak banner, insurance packet, group-buy card",
-        "→ Separately: district dashboard loads a pre-aggregated, anonymized village-level "
-        "snapshot built at deploy time, never raw farmer data",
-    ], size=12.5, space_after=6)
+
+    DL, DR = 0.22, 9.78  # diagram left/right edge
+    y = 1.42
+
+    # Row A: input + context tools, side by side
+    boxes_a = row_boxes(2, DL, DR, gap=0.18)
+    add_diagram_box(s6, boxes_a[0][0], y, boxes_a[0][1], 0.46,
+                     [("FARMER INPUT", True), ("Symptom text or speech (Kannada/English) + optional photo, in-browser", False)],
+                     FILL_NEUTRAL, LINE_NEUTRAL)
+    add_diagram_box(s6, boxes_a[1][0], y, boxes_a[1][1], 0.46,
+                     [("CONTEXT CHECKS", True), ("Weather (Open-Meteo), outbreak radius, plot-memory history", False)],
+                     FILL_NEUTRAL, LINE_NEUTRAL)
+    y += 0.46
+    add_down_arrow(s6, (DL + DR) / 2, y, 0.16)
+    y += 0.16
+
+    # Row B: Gemini call 1 — diagnosis
+    add_diagram_box(s6, DL, y, DR - DL, 0.46,
+                     [("GEMINI CALL 1 — DIAGNOSIS", True),
+                      ("Multimodal + RAG (TF-IDF over 18 bilingual disease docs) → structured diagnosis JSON", False)],
+                     FILL_AI, LINE_AI)
+    y += 0.46
+    add_down_arrow(s6, (DL + DR) / 2, y, 0.16)
+    y += 0.16
+
+    # Row C: Gemini call 2 — orchestration
+    add_diagram_box(s6, DL, y, DR - DL, 0.46,
+                     [("GEMINI CALL 2 — ORCHESTRATION (real function-calling)", True),
+                      ("Decides WHICH tools to invoke from diagnosis + outbreak + near-harvest — not a hardcoded if/else", False)],
+                     FILL_ACCENT, LINE_ACCENT)
+    y += 0.46
+    add_down_arrow(s6, (DL + DR) / 2, y, 0.16, color=ACCENT)
+    y += 0.16
+
+    # Row D: the 4 tools Gemini can choose from
+    tool_labels = [
+        ("DEALER LOOKUP", "Nearest in-stock dealer + price"),
+        ("SELL-PRICE LOOKUP", "Best nearby mandi price"),
+        ("INSURANCE CHECK", "Fileable claim packet"),
+        ("GROUP-BUY CHECK", "Bulk-discount alert"),
+    ]
+    boxes_d = row_boxes(4, DL, DR, gap=0.12)
+    for (bl, bw), (title, detail) in zip(boxes_d, tool_labels):
+        add_diagram_box(s6, bl, y, bw, 0.52, [(title, True), (detail, False)],
+                         FILL_TOOLS, LINE_TOOLS, title_size=9, detail_size=7.5)
+    y += 0.52
+    add_down_arrow(s6, (DL + DR) / 2, y, 0.16)
+    y += 0.16
+
+    # Row E: response assembly
+    add_diagram_box(s6, DL, y, DR - DL, 0.46,
+                     [("RESPONSE ASSEMBLY", True),
+                      ("Kannada advisory spoken via Web Speech API; diagnosis, dealer, outbreak, insurance, group-buy cards rendered", False)],
+                     FILL_NEUTRAL, LINE_NEUTRAL)
+    y += 0.46 + 0.14
+
+    # Footer callout, mirroring the reference deck's "core principle" box
+    add_diagram_box(s6, DL, y, DR - DL, 0.46,
+                     [("Separately — district dashboard: a pre-aggregated, anonymized village-level "
+                       "snapshot loads independently, built at deploy time. Raw farmer data never reaches the browser.", False)],
+                     FILL_CALLOUT, LINE_CALLOUT, detail_size=8.5)
 
     # ---- Slide 7: Wireframes (use the real screenshots) ----
-    s7 = prs.slides[6]
+    s7 = prs.slides[5]
     for shape in s7.shapes:
         if shape.has_text_frame and "Wireframes" in shape.text_frame.text:
             set_textbox(shape, [("Wireframes / Mock diagrams of the proposed solution", True)], title_size=16, title_font=FONT_HEAD)
     add_picture_fit(s7, os.path.join(SCREENSHOTS, "01_initial_load.png"), 0.4, 1.35, 4.4, 4.0)
     add_picture_fit(s7, os.path.join(SCREENSHOTS, "deck_crops", "02_crop.png"), 5.1, 1.35, 4.4, 4.0)
 
-    # ---- Slide 8: Architecture diagram ----
-    s8 = prs.slides[7]
+    # ---- Slide 8: Architecture diagram (layered boxes, not bullet text) ----
+    s8 = prs.slides[6]
     for shape in s8.shapes:
         if shape.has_text_frame and "Architecture diagram" in shape.text_frame.text:
             set_textbox(shape, [("Architecture diagram of the proposed solution", True)], title_size=16, title_font=FONT_HEAD)
-    arch8 = add_textbox(s8, 0.29, 1.4, 9.4, 3.9)
-    add_bullets(arch8, [
-        "100% client-side static site — no backend server, no billing account, no credit card "
-        "anywhere in the deployed stack — Firebase Hosting (free Spark plan) serves the app",
-        "Diagnosis: a real Gemini multimodal API call direct from the browser, grounded by a "
-        "hand-rolled TF-IDF + cosine-similarity RAG index over 18 disease documents (9 English + "
-        "9 Kannada), so a Kannada symptom description retrieves relevant passages natively",
-        "Orchestration: a second Gemini call uses real function-calling (tools/"
-        "functionDeclarations) to decide which of 4 downstream tools to invoke — the model "
-        "drives the decision, not a hardcoded branch — falling back to equivalent deterministic "
-        "rules only if the live call fails after retries",
-        "Weather: a direct, keyless call to the free Open-Meteo API (confirmed CORS-enabled)",
-        "Dealer directory, mandi prices, and diagnosis history ship as static JSON/CSV with the "
-        "site; the district dashboard loads a pre-aggregated snapshot built at deploy time from "
-        "the private farmer dataset, so raw farmer/plot linkage never ships publicly",
-        "Voice advisory: the browser's own Web Speech API (SpeechSynthesis), feature-detecting a "
-        "kn-IN voice at runtime",
-    ], size=13)
+
+    LABEL_W = 0.78
+    DL2, DR2 = 0.22 + LABEL_W, 9.78
+    y = 1.40
+
+    def labeled_row(label, boxes_spec, height, fill, line_color, title_size=9, detail_size=7.5):
+        nonlocal y
+        add_row_label(s8, 0.22, y, LABEL_W - 0.08, height, label)
+        n = len(boxes_spec)
+        boxes = row_boxes(n, DL2, DR2, gap=0.12)
+        for (bl, bw), (title, detail) in zip(boxes, boxes_spec):
+            add_diagram_box(s8, bl, y, bw, height, [(title, True), (detail, False)],
+                             fill, line_color, title_size=title_size, detail_size=detail_size)
+        y += height
+
+    # HOST layer
+    labeled_row("HOSTING", [("FIREBASE HOSTING — FREE SPARK PLAN", "Static site only. $0 billing, no credit card anywhere in the stack.")],
+                0.42, FILL_HOST, LINE_HOST, title_size=9.5, detail_size=8)
+    y += 0.12
+    add_down_arrow(s8, (DL2 + DR2) / 2, y, 0.14)
+    y += 0.14
+
+    # CLIENT layer
+    labeled_row("BROWSER", [
+        ("CAMERA / MIC INPUT", "Photo + Kannada speech, Web Speech API"),
+        ("UI RENDER", "Diagnosis, dealer, outbreak, insurance, group-buy cards"),
+        ("VOICE OUTPUT", "SpeechSynthesis, kn-IN voice feature-detect"),
+    ], 0.5, FILL_NEUTRAL, LINE_NEUTRAL)
+    y += 0.1
+    add_down_arrow(s8, (DL2 + DR2) / 2, y, 0.14)
+    y += 0.14
+
+    # GEMINI layer
+    labeled_row("GEMINI API", [
+        ("CALL 1 — DIAGNOSIS", "Multimodal + RAG-grounded structured JSON output"),
+        ("CALL 2 — ORCHESTRATION", "Real function-calling picks which tools fire; retries, then deterministic fallback"),
+    ], 0.56, FILL_ACCENT, LINE_ACCENT, title_size=9.5, detail_size=8)
+    y += 0.1
+    add_down_arrow(s8, (DL2 + DR2) / 2, y, 0.14, color=ACCENT)
+    y += 0.14
+
+    # DATA + EXTERNAL layer
+    labeled_row("DATA & APIs", [
+        ("RAG INDEX (JS)", "TF-IDF + cosine, 18 bilingual disease docs"),
+        ("STATIC JSON/CSV", "Dealers, mandi prices, diagnosis history"),
+        ("DASHBOARD SNAPSHOT", "Pre-aggregated at deploy time — raw farmer data never ships"),
+        ("OPEN-METEO", "Keyless, CORS-enabled weather API"),
+    ], 0.58, FILL_TOOLS, LINE_TOOLS)
+    y += 0.16
+
+    add_diagram_box(s8, 0.22, y, 9.56, 0.42,
+                     [("No backend server anywhere in this stack — every call above runs directly from "
+                       "the farmer's browser to a public API or a static file.", False)],
+                     FILL_CALLOUT, LINE_CALLOUT, detail_size=8.5)
 
     # ---- Slide 9: Technologies ----
-    s9 = prs.slides[8]
+    s9 = prs.slides[7]
     for shape in s9.shapes:
         if shape.has_text_frame and "Technologies" in shape.text_frame.text:
             set_textbox(shape, [("Technologies to be used in the solution", True)], title_size=16, title_font=FONT_HEAD)
@@ -247,7 +438,7 @@ def main():
     ], size=13, space_after=4)
 
     # ---- Slide 10: Estimated implementation cost ----
-    s10 = prs.slides[9]
+    s10 = prs.slides[8]
     for shape in s10.shapes:
         if shape.has_text_frame and "implementation cost" in shape.text_frame.text:
             set_textbox(shape, [("Estimated implementation cost", True)], title_size=16, title_font=FONT_HEAD)
@@ -266,7 +457,7 @@ def main():
     ], size=14)
 
     # ---- Slide 11: Snapshots of the prototype ----
-    s11 = prs.slides[10]
+    s11 = prs.slides[9]
     for shape in s11.shapes:
         if shape.has_text_frame and "Snapshots" in shape.text_frame.text:
             set_textbox(shape, [("Snapshots of the prototype", True)], title_size=16, title_font=FONT_HEAD)
@@ -274,7 +465,7 @@ def main():
     add_picture_fit(s11, os.path.join(SCREENSHOTS, "04_district_dashboard.png"), 5.1, 1.35, 4.6, 4.0)
 
     # ---- Slide 12: Prototype performance / benchmarking ----
-    s12 = prs.slides[11]
+    s12 = prs.slides[10]
     for shape in s12.shapes:
         if shape.has_text_frame and "Performance report" in shape.text_frame.text:
             set_textbox(shape, [("Prototype Performance report / Benchmarking", True)], title_size=16, title_font=FONT_HEAD)
@@ -295,7 +486,7 @@ def main():
     ], size=13, space_after=5)
 
     # ---- Slide 13: Additional details / future development ----
-    s13 = prs.slides[12]
+    s13 = prs.slides[11]
     for shape in s13.shapes:
         if shape.has_text_frame and "Additional Details" in shape.text_frame.text:
             set_textbox(shape, [("Additional Details / Future Development", True)], title_size=16, title_font=FONT_HEAD)
@@ -322,7 +513,7 @@ def main():
     ], size=13, space_after=7)
 
     # ---- Slide 14: Links ----
-    s14 = prs.slides[13]
+    s14 = prs.slides[12]
     for shape in s14.shapes:
         if shape.has_text_frame and "Provide links" in shape.text_frame.text:
             set_textbox(shape, [
