@@ -552,7 +552,7 @@ def main():
             set_textbox(shape, [
                 ("Provide links to your:", True),
                 ("GitHub Public Repository: https://github.com/Kavitacs08/kisan-mitra", False),
-                ("Demo Video Link (3 Minutes): https://github.com/Kavitacs08/kisan-mitra/raw/main/docs/video/Kisan_Mitra_Demo.mp4", False),
+                ("Demo Video Link (3 Minutes): https://drive.google.com/file/d/1xu7f6okDBQRVK4ykY2NfpF_JFG0lTMAB/view?usp=drive_link", False),
                 ("Final Product Link: https://kisan-mitra-2026-56c5d.web.app", False),
             ], title_size=16, body_size=13, title_font=FONT_HEAD_SEMI)
 
