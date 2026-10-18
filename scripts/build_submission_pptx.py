@@ -99,6 +99,32 @@ def add_down_arrow(slide, x_center, top, height, color=LINE_NEUTRAL):
     return tb
 
 
+def add_legend(slide, left, top, width, height, items):
+    """A small color-key row (swatch + label) under a diagram, mirroring the
+    reference deck's bottom legend convention."""
+    n = len(items)
+    seg = width / n
+    for i, (color, label) in enumerate(items):
+        x = left + i * seg
+        sw = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Inches(top + height / 2 - 0.055), Inches(0.11), Inches(0.11))
+        sw.fill.solid()
+        sw.fill.fore_color.rgb = color
+        sw.line.fill.background()
+        sw.shadow.inherit = False
+        tb = slide.shapes.add_textbox(Inches(x + 0.16), Inches(top), Inches(seg - 0.18), Inches(height))
+        tf = tb.text_frame
+        tf.word_wrap = True
+        tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+        tf.margin_left = Emu(0)
+        tf.margin_right = Emu(0)
+        p = tf.paragraphs[0]
+        run = p.add_run()
+        run.text = label
+        run.font.size = Pt(7.5)
+        run.font.name = FONT_BODY
+        run.font.color.rgb = MUTED
+
+
 def add_row_label(slide, left, top, width, height, text):
     """Small vertical-ish category label to the left of a diagram row,
     matching the reference deck's left-hand layer labels."""
@@ -215,7 +241,8 @@ def main():
             set_textbox(shape, [
                 ("Team Details", True),
                 ("Team name: Kisan Mitra", False),
-                ("Team leader name: Kavita Chegaraddi", False),
+                ("Team leader name: Kavita S Chegaraddi", False),
+                ("Team member name: Sangeetha Chegaraddi", False),
                 ("Problem Statement: Sustainability & Social Impact — "
                  "Smallholder Crop Advisory Agent for tomato farmers in the Kolar belt, Karnataka", False),
             ], title_size=22, body_size=14, title_font=FONT_HEAD_SEMI)
@@ -414,6 +441,13 @@ def main():
                      [("No backend server anywhere in this stack — every call above runs directly from "
                        "the farmer's browser to a public API or a static file.", False)],
                      FILL_CALLOUT, LINE_CALLOUT, detail_size=8.5)
+    y += 0.42 + 0.1
+    add_legend(s8, 0.22, y, 9.56, 0.2, [
+        (FILL_HOST, "Hosting"),
+        (FILL_NEUTRAL, "Browser-side"),
+        (FILL_ACCENT, "Gemini API"),
+        (FILL_TOOLS, "Data & external APIs"),
+    ])
 
     # ---- Slide 9: Technologies ----
     s9 = prs.slides[7]
@@ -490,27 +524,26 @@ def main():
     for shape in s13.shapes:
         if shape.has_text_frame and "Additional Details" in shape.text_frame.text:
             set_textbox(shape, [("Additional Details / Future Development", True)], title_size=16, title_font=FONT_HEAD)
-    future13 = add_textbox(s13, 0.29, 1.4, 9.4, 3.9)
+    future13 = add_textbox(s13, 0.29, 1.4, 9.4, 4.0)
     add_bullets(future13, [
         "Next step — upgrade to managed Google Cloud services once billing is available: "
-        "Gemini moved behind a Cloud Run/Cloud Functions proxy (closes the current public-key "
-        "exposure and removes the 20-req/day free-tier ceiling), Firestore replacing the static "
-        "dealer/price/history JSON so the district dashboard becomes genuinely live instead of a "
-        "deploy-time snapshot, Vertex AI Search replacing the hand-rolled TF-IDF retrieval, and "
-        "Cloud Translation/Text-to-Speech replacing the template-based Kannada advisory. Every "
-        "substitute today sits behind one isolated call site per module, so each swap is "
-        "incremental, not a rewrite.",
-        "Offline-first fallback (planned): a distilled on-device TensorFlow Lite classifier for "
-        "the 8–10 most common regional diseases, so core diagnosis keeps working when "
+        "Gemini behind a Cloud Run/Cloud Functions proxy (closes the public-key exposure, "
+        "removes the 20-req/day ceiling), Firestore replacing the static dealer/price/history "
+        "JSON for a genuinely live dashboard, Vertex AI Search replacing the hand-rolled "
+        "TF-IDF retrieval, and Cloud Translation/Text-to-Speech replacing the template-based "
+        "Kannada advisory. Each substitute sits behind one isolated call site, so every swap "
+        "is incremental, not a rewrite.",
+        "Offline-first fallback (planned): a distilled on-device TensorFlow Lite classifier "
+        "for the 8–10 most common regional diseases, so core diagnosis keeps working when "
         "connectivity drops entirely. Training script already written, pending a real "
         "multi-hour training run on the full PlantVillage dataset.",
-        "Expansion path: adding a new crop or region means indexing a new disease guide into the "
-        "retrieval layer, not rewriting the diagnosis logic — the architecture is crop-agnostic "
-        "by design even though this build is scoped to tomato in Karnataka for the demo.",
+        "Expansion path: adding a new crop or region means indexing a new disease guide into "
+        "the retrieval layer, not rewriting the diagnosis logic — crop-agnostic by design even "
+        "though this build is scoped to tomato in Karnataka for the demo.",
         "Resource & environmental impact: targeted treatment instead of blanket spraying, "
-        "weather-timed application to reduce chemical runoff, and earlier detection to reduce "
-        "crop loss — moving this beyond social impact into genuine sustainability.",
-    ], size=13, space_after=7)
+        "weather-timed spraying to cut chemical runoff, and earlier detection to reduce crop "
+        "loss — moving this beyond social impact into genuine sustainability.",
+    ], size=12, space_after=5, line_spacing=1.1)
 
     # ---- Slide 14: Links ----
     s14 = prs.slides[12]
