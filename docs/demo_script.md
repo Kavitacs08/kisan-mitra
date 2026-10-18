@@ -1,5 +1,17 @@
 # Kisan Mitra — 3-Minute Demo Script
 
+**Status (2026-10-18): recorded.** The actual video was produced from
+this script's structure — see `docs/video/narration_script.md` for the
+exact, timed narration that was read against the real recorded app
+footage, and `scripts/record_demo.py` / `scripts/build_demo_video.py`
+for how it was captured and assembled. The beats below describe the
+original plan; the real recording folds Beats 3 (dealer) and 5
+(outbreak) into one combined "everything on one screen" moment, since
+that's what the live app actually does in a single diagnosis call, and
+adds a new beat for the Gemini function-calling orchestration (added to
+the app after this script was first written).
+
+
 **Setting:** Tomato belt, Kolar district, Karnataka.
 
 ## Beat 1 — The problem (0:00–0:30)

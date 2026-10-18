@@ -16,3 +16,13 @@ firebase-debug.log
 # OS
 .DS_Store
 Thumbs.db
+
+# Large third-party dataset downloaded separately, not part of this repo
+docs/tomato_leaf_disease_images.zip
+docs/tomato_leaf_disease_images/
+
+# Regenerable video build intermediates (titles/beat cards rendered to PNG,
+# per-segment mp4s, ffmpeg concat list) -- rerun scripts/build_demo_video.py
+# to recreate. Raw Playwright recordings (docs/video/raw/) are kept, since
+# re-recording costs live Gemini quota.
+docs/video/rendered/
